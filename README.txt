@@ -21,3 +21,9 @@ Step-3 : I have used iftop to fetch the network usage and since this is a depend
 step-4 : chmod +x iftop.sh and systemmetrics.sh to set execution permissions.
 Step-5 : run sudo iftop.sh to install iftop
 Step-6 : run sudo systemmetrics.sh to display the requested system metrics.
+
+
+Note: Just in case if the the bash script throws up an error "/bin/bash^M: bad interpreter: No such file or direct"
+Kindly run sed -i -e 's/\r$//' iftop.sh
+Kindly run sed -i -e 's/\r$//' systemmetrics.sh
+Since the scripts were written in a windows text editor and then saved as bash shell the line ending might differ which can cause the error "/bin/bash^M: bad interpreter: No such file or direct"
