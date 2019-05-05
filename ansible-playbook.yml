@@ -1,0 +1,102 @@
+--- # Creating 2 Linux servers
+ - name: Azure VM configuration
+   hosts: localhost
+   connection: local
+   vars:
+      hostname1: azurevm1
+      hostname2: azurevm2
+      username: azureuser
+      password: '@zur3us3r'
+      vmsize: Standard_DS1_v2
+      os: CentOS
+      pub: OpenLogic
+      skucode: '7.5'
+      ver: latest
+      region: eastus
+   tasks:
+    - name: Create resource group
+      azure_rm_resourcegroup:
+       name: ResourceGroup
+       location: '{{ region }}'
+    - name: Create virtual network
+      azure_rm_virtualnetwork:
+       resource_group: ResourceGroup
+       name: Vnet
+       address_prefixes: "10.0.0.0/16"
+    - name: Add subnet
+      azure_rm_subnet:
+       resource_group: ResourceGroup
+       name: Subnet
+       address_prefix: "10.0.1.0/24"
+       virtual_network: Vnet
+    - name: Create public IP address
+      azure_rm_publicipaddress:
+       resource_group: ResourceGroup
+       allocation_method: Static
+       name: PublicIP
+      register: output_ip_address
+    - name: Dump public IP for VM which will be created
+      debug:
+        msg: "The public IP is {{ output_ip_address.state.ip_address }}."
+    - name: Create public IP address1
+      azure_rm_publicipaddress:
+       resource_group: ResourceGroup
+       allocation_method: Static
+       name: PublicIP1
+      register: output_ip_address
+    - name: Dump public IP for VM which will be created
+      debug:
+        msg: "The public IP is {{ output_ip_address.state.ip_address }}."
+    - name: Create Network Security Group that allows SSH
+      azure_rm_securitygroup:
+       resource_group: ResourceGroup
+       name: NetworkSecurityGroup
+       rules:
+         - name: SSH
+           protocol: Tcp
+           destination_port_range: 22
+           access: Allow
+           priority: 1001
+           direction: Inbound
+    - name: Create virtual network inteface card
+      azure_rm_networkinterface:
+       resource_group: ResourceGroup
+       name: NIC
+       virtual_network: Vnet
+       subnet: Subnet
+       public_ip_name: PublicIP
+       security_group: NetworkSecurityGroup
+    - name: Create VM1
+      azure_rm_virtualmachine:
+       resource_group: ResourceGroup
+       name: '{{ hostname1 }}'
+       vm_size: '{{ vmsize }}'
+       admin_username: '{{ username }}'
+       admin_password: '{{ password }}'
+       network_interfaces: NIC
+       image:
+         offer: '{{ os }}'
+         publisher: '{{ pub }}'
+         sku: '{{ 7.5 }}'
+         version: '{{ ver }}'
+    - name: Create virtual network inteface card1
+      azure_rm_networkinterface:
+       resource_group: ResourceGroup
+       name: NIC1
+       virtual_network: Vnet
+       subnet: Subnet
+       public_ip_name: PublicIP1
+       security_group: NetworkSecurityGroup
+    - name: Create VM2
+      azure_rm_virtualmachine:
+       resource_group: ResourceGroup
+       name: '{{ hostname2 }}'
+       vm_size: '{{ vmsize }}'
+       admin_username: '{{ username }}'
+       admin_password: '{{ password }}'
+       network_interfaces: NIC1
+       image:
+         offer: '{{ os }}'
+         publisher: '{{ pub }}'
+         sku: '{{ 7.5 }}'
+         version: '{{ ver }}'
