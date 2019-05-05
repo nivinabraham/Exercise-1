@@ -18,5 +18,6 @@ Capture System Metrics:
 Step-1 : SSH to the VM with username: azureuser and password: @zur3us3r
 Step-2 : Upload iftop.sh and systemmetrics.sh to the VMs
 Step-3 : I have used iftop to fetch the network usage and since this is a dependency for systemmetrics.sh to run, i have attached a script to install iftop.
-Step-4 : run iftop.sh as sudo
-Step-5 : run systemmetrics.sh to display the requested system metrics.
+step-4 : chmod +x iftop.sh and systemmetrics.sh to set execution permissions.
+Step-5 : run sudo iftop.sh to install iftop
+Step-6 : run sudo systemmetrics.sh to display the requested system metrics.
